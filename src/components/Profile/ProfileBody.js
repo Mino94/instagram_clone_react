@@ -1,5 +1,6 @@
-import { Button } from "bootstrap";
+import { Button } from "reactstrap";
 import "./ProfileBody.css";
+
 const ProfileBody = ({
   posts = new Array(5),
   follower = new Array(5),

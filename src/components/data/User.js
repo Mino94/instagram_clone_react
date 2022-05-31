@@ -3,6 +3,7 @@ export const Users = [
     id: 0,
     name: "kim",
     userId: "kim",
+    img: "/img/post/1.jpeg",
     password: "1234",
   },
 
@@ -11,6 +12,7 @@ export const Users = [
     name: "park",
     userId: "park",
     password: "1234",
+    img: "/img/post/1.jpeg",
   },
 
   {
@@ -18,5 +20,6 @@ export const Users = [
     name: "lee",
     userId: "lee",
     password: "1234",
+    img: "/img/post/1.jpeg",
   },
 ];

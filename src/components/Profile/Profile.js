@@ -1,7 +1,10 @@
 import { useContext } from "react";
 import { Container } from "reactstrap";
-import { UserContext } from "../../data/UserContext";
+import { UserContext } from "../../store/UserContext";
+import ProfileBody from "./ProfileBody";
 import ProfileHeader from "./ProfileHeader";
+import { PostContext } from "../../store/PostContext";
+import { FollowContext } from "../../store/FollowContext";
 
 const Profile = () => {
   const { users } = useContext(UserContext);
@@ -9,12 +12,13 @@ const Profile = () => {
   const getUser = () => {
     return users.find((user) => id === user.id);
   };
-  const { name } = getUser();
+  const { name, img } = getUser();
+
   return (
     <>
       <ProfileHeader name={name}></ProfileHeader>
       <Container className="ProfileContainer">
-        <div>profile</div>
+        <ProfileBody img={img}></ProfileBody>
       </Container>
     </>
   );
