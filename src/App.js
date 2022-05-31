@@ -1,5 +1,5 @@
 import "./App.css";
-import Login from "./components/Login/Login";
+import Join from "./components/Login/Join";
 import BootstrapLogin from "./components/Login/BootstrapLogin";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Main from "./components/Main";
