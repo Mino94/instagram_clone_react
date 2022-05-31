@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users } from "./Login/Users";
+import { Users } from "./data/User";
 
 const Page404 = () => {
   const navigate = useNavigate();

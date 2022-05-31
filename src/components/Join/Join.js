@@ -1,12 +1,58 @@
 import { useState } from "react";
 import { Button, Col, Container, Form, Input, Row, Alert } from "reactstrap";
-import { Users } from "./Users";
+import { Users } from "../data/User";
 import { useNavigate } from "react-router";
 import AuthRouter from "../AuthRouter";
-import "./Login.css";
+import "../Login/Login.css";
 
 const Join = () => {
   const [isFail, setIsFail] = useState(false);
+  const [text, setText] = useState("");
+
+  const [user, setUser] = useState({
+    id: "",
+    password: "",
+    name: "",
+  });
+
+  const onChangeHandler = (e) => {
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+  };
+
+  const openAlert = (text) => {
+    setIsFail(true);
+    setText(text);
+    setTimeout(() => closeAlert(), 3000);
+  };
+
+  const navigate = useNavigate();
+  const onSubmitLogin = (e) => {
+    e.preventDefault();
+    const findUser = Users.find((data) => data.userId === user.id);
+    if (findUser) {
+      openAlert("이미 존재하는 아이디");
+      return;
+    } else if (user.id === "") {
+      openAlert("아이디 입력 해");
+      return;
+    } else if (user.password === "") {
+      openAlert("비번 입력해");
+      return;
+    } else if (user.name === "") {
+      openAlert("이름 입력해");
+      return;
+    } else {
+      Users.push({ ...user, userId: user.id, id: Users.length });
+      localStorage.setItem("id", Users.length);
+      navigate("/");
+    }
+  };
+
+  const closeAlert = () => {
+    setIsFail(false);
+    setText("");
+  };
 
   return (
     <div className="JoinPage">

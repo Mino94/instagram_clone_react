@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Col, Container, Form, Input, Row, Alert } from "reactstrap";
-import { Users } from "./Users";
+import { Users } from "../data/User";
 import "./Login.css";
 import { useNavigate } from "react-router";
 import AuthRouter from "../AuthRouter";

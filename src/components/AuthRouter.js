@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Users } from "./Login/Users";
+import { Users } from "./data/User";
 
 const AuthRouter = () => {
   const navigate = useNavigate();
