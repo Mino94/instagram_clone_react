@@ -15,68 +15,75 @@ import { Users } from "./components/data/User";
 import { Posts } from "./components/data/Post";
 import { Follow } from "./components/data/Follow";
 import Layout from "./components/Layout/Layout";
+import Search from "./components/Search/Search";
 
 function App() {
-  const [users, setUsers] = useState(Users);
-  const insertUsers = (user) => {
-    const newUser = { ...user, userId: user.id, id: users.length };
-    setUsers([...users, newUser]);
-  };
-  const updateUsers = (user) => {
-    const id = Number(localStorage.getItem("id"));
-    const { img, name } = user;
-    const findUsersIndex = users.findIndex((user) => user.id === id);
-    if (findUsersIndex === -1) {
-      console.error("not found");
-      return;
-    }
-    const newUsers = [...users];
-    newUsers.splice(findUsersIndex, 1, { ...users[findUsersIndex], name, img });
-    setUsers(newUsers);
-  };
-  const [posts, setPosts] = useState(Posts);
-  const insertPost = (post) => {
-    const newPost = {
-      ...post,
-      userId: Number(localStorage.getItem("id")),
-      id: posts.length,
+    const [users, setUsers] = useState(Users);
+    const insertUsers = (user) => {
+        const newUser = { ...user, userId: user.id, id: users.length };
+        setUsers([...users, newUser]);
     };
-    setPosts([...posts, newPost]);
-  };
-
-  const [follows, setFollows] = useState(Follow);
-  const insertFollow = (followerId) => {
-    const newFollow = {
-      following: Number(localStorage.getItem("id")),
-      follower: followerId,
+    const updateUsers = (user) => {
+        const id = Number(localStorage.getItem("id"));
+        const { img, name } = user;
+        const findUsersIndex = users.findIndex((user) => user.id === id);
+        if (findUsersIndex === -1) {
+            console.error("not found");
+            return;
+        }
+        const newUsers = [...users];
+        newUsers.splice(findUsersIndex, 1, {
+            ...users[findUsersIndex],
+            name,
+            img,
+        });
+        setUsers(newUsers);
     };
-    setFollows([...follows, newFollow]);
-  };
+    const [posts, setPosts] = useState(Posts);
+    const insertPost = (post) => {
+        const newPost = {
+            ...post,
+            userId: Number(localStorage.getItem("id")),
+            id: posts.length,
+        };
+        setPosts([...posts, newPost]);
+    };
 
-  return (
-    <UserContext.Provider value={{ users, insertUsers, updateUsers }}>
-      <PostContext.Provider value={{ posts, insertPost }}>
-        <FollowContext.Provider value={{ follows, insertFollow }}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout></Layout>}>
-                <Route index element={<Profile></Profile>}></Route>
-                <Route path="shopping" element={<Main></Main>}></Route>
-                <Route path="profile" element={<Profile></Profile>}></Route>
-              </Route>
-              <Route
-                index
-                path="/login"
-                element={<BootstrapLogin></BootstrapLogin>}
-              ></Route>
-              <Route index path="/*" element={<Page404></Page404>}></Route>
-              <Route index path="/join" element={<Join></Join>}></Route>
-            </Routes>
-          </BrowserRouter>
-        </FollowContext.Provider>
-      </PostContext.Provider>
-    </UserContext.Provider>
-  );
+    const deletePost = (postId) => {
+        const delPosts = posts.filter((post) => post.id !== postId);
+        setPosts(delPosts);
+    };
+
+    const [follows, setFollows] = useState(Follow);
+    const insertFollow = (followerId) => {
+        const newFollow = {
+            following: Number(localStorage.getItem("id")),
+            follower: followerId,
+        };
+        setFollows([...follows, newFollow]);
+    };
+
+    return (
+        <UserContext.Provider value={{ users, insertUsers, updateUsers }}>
+            <PostContext.Provider value={{ posts, insertPost, deletePost }}>
+                <FollowContext.Provider value={{ follows, insertFollow }}>
+                    <BrowserRouter>
+                        <Routes>
+                            <Route path="/" element={<Layout></Layout>}>
+                                <Route index element={<Profile></Profile>}></Route>
+                                <Route path="shopping" element={<Main></Main>}></Route>
+                                <Route path="profile" element={<Profile></Profile>}></Route>
+                            </Route>
+                            <Route index path="/login" element={<BootstrapLogin></BootstrapLogin>}></Route>
+                            <Route index path="/search" element={<Search></Search>}></Route>
+                            <Route index path="/*" element={<Page404></Page404>}></Route>
+                            <Route index path="/join" element={<Join></Join>}></Route>
+                        </Routes>
+                    </BrowserRouter>
+                </FollowContext.Provider>
+            </PostContext.Provider>
+        </UserContext.Provider>
+    );
 }
 
 export default App;

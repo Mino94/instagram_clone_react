@@ -11,15 +11,15 @@ export const Users = [
     id: 1,
     name: "park",
     userId: "park",
-    password: "1234",
     img: "/img/post/1.jpeg",
+    password: "1234",
   },
 
   {
     id: 2,
     name: "lee",
     userId: "lee",
-    password: "1234",
     img: "/img/post/1.jpeg",
+    password: "1234",
   },
 ];
