@@ -7,7 +7,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Main from "./components/Main";
 import Profile from "./components/Profile/Profile";
 import Page404 from "./components/Page404";
-import Layout from "./components/Layout/Layout";
 import { PostContext } from "./store/PostContext";
 import { FollowContext } from "./store/FollowContext";
 import { UserContext } from "./store/UserContext";
@@ -15,12 +14,25 @@ import { UserContext } from "./store/UserContext";
 import { Users } from "./components/data/User";
 import { Posts } from "./components/data/Post";
 import { Follow } from "./components/data/Follow";
+import Layout from "./components/Layout/Layout";
 
 function App() {
   const [users, setUsers] = useState(Users);
   const insertUsers = (user) => {
     const newUser = { ...user, userId: user.id, id: users.length };
     setUsers([...users, newUser]);
+  };
+  const updateUsers = (user) => {
+    const id = Number(localStorage.getItem("id"));
+    const { img, name } = user;
+    const findUsersIndex = users.findIndex((user) => user.id === id);
+    if (findUsersIndex === -1) {
+      console.error("not found");
+      return;
+    }
+    const newUsers = [...users];
+    newUsers.splice(findUsersIndex, 1, { ...users[findUsersIndex], name, img });
+    setUsers(newUsers);
   };
   const [posts, setPosts] = useState(Posts);
   const insertPost = (post) => {
@@ -42,7 +54,7 @@ function App() {
   };
 
   return (
-    <UserContext.Provider value={{ users, insertUsers }}>
+    <UserContext.Provider value={{ users, insertUsers, updateUsers }}>
       <PostContext.Provider value={{ posts, insertPost }}>
         <FollowContext.Provider value={{ follows, insertFollow }}>
           <BrowserRouter>
