@@ -1,9 +1,10 @@
 /*
 select * from posts where id = ${id}
 */
-export const getPostById = async (posts, id) => {
+export const getPostById = async (posts, userId) => {
     try {
-        const findPostById = await posts.fillter((post) => post.id === id);
+        console.log("*******************" + userId);
+        const findPostById = await posts.fillter((post) => post.userId === Number(userId));
         return findPostById;
     } catch (error) {
         throw error;
@@ -15,8 +16,21 @@ select * from posts where userid = ${id}
 */
 export const getPostByUserId = async (posts, userId) => {
     try {
-        const findPostByUserId = await posts.fillter((post) => post.userId === userId);
+        const findPostByUserId = await posts.filter((post) => post.userId === Number(userId));
         return findPostByUserId;
+    } catch (error) {
+        throw error;
+    }
+};
+
+export const getPostByKey = async (posts, key, userId) => {
+    try {
+        const findPostsByUserId = await posts.filter(
+            (
+                post //
+            ) => userId === post.userId || key.test(post.content)
+        );
+        return findPostsByUserId;
     } catch (error) {
         throw error;
     }

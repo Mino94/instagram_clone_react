@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Container } from "reactstrap";
 import { UserContext } from "../../store/UserContext";
 import ProfileBody from "./ProfileBody";
@@ -6,16 +6,26 @@ import ProfileHeader from "./ProfileHeader";
 import { PostContext } from "../../store/PostContext";
 import { FollowContext } from "../../store/FollowContext";
 import Post from "../Posts/Posts";
-import { useSelector } from "../../../node_modules/react-redux/es/exports";
+import { useDispatch, useSelector } from "react-redux";
+import { selectMyPost } from "../../store/posts";
 
 const Profile = () => {
     // redux에서 가져올떄 useSelector
     const { name, img, id } = useSelector((state) => state.users.me);
-    const { posts, deletePost } = useContext(PostContext);
     const { follows } = useContext(FollowContext);
-    const myPosts = () => {
-        return posts.filter((post) => post.userId === id);
+
+    const dispatch = useDispatch();
+    const myPosts = useSelector((state) => state.posts.myPosts);
+
+    const getMyPost = () => {
+        dispatch(selectMyPost());
     };
+    useEffect(() => {
+        getMyPost();
+    }, []);
+    // const myPosts = () => {
+    //     return posts.filter((post) => post.userId === id);
+    // };
     const myFollower = () => {
         return follows.filter((follow) => follow.following === id);
     };
@@ -27,8 +37,8 @@ const Profile = () => {
         <>
             <ProfileHeader name={name}></ProfileHeader>
             <Container className="ProfileContainer">
-                <ProfileBody img={img} follower={myFollower()} following={myFollowing()} posts={myPosts()}></ProfileBody>
-                <Post posts={myPosts()} name={name} img={img} deletePost={deletePost}></Post>
+                <ProfileBody img={img} name={name} follower={myFollower()} following={myFollowing()} posts={myPosts.posts}></ProfileBody>
+                <Post posts={myPosts.posts} name={name} img={img} postState={myPosts}></Post>
             </Container>
         </>
     );

@@ -1,6 +1,6 @@
 import { Posts } from "../components/data/Post";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { deletePostById, getPostById, getPostByOther } from "./PostApi";
+import { deletePostById, getPostById, getPostByKey, getPostByOther, getPostByUserId, postPost } from "./PostApi";
 const initialState = {
     posts: Posts,
     myPosts: {
@@ -25,19 +25,20 @@ const SELECT_OTHER_POST = "SELECT_OTHER_POST";
 const UPDATE_POST = "UPDATE_POST";
 const DELETE_POST = "DELETE_POST";
 const INSERT_POST = "INSERT_POST";
+const SELECT_POST_BY_KEY = "SELECT_POST_BY_KEY";
 
 export const selectMyPost = createAsyncThunk(SELECT_MY_POST, async (payload, thunkApi) => {
     const { myId } = thunkApi.getState().users;
     const { posts } = thunkApi.getState().posts;
+
     if (myId) {
-        const myPosts = await getPostById(posts, Number(myId));
+        const myPosts = await getPostByUserId(posts, myId);
         return myPosts;
     } else if (myId === 0 || myId === "0") {
-        const myPosts = await getPostById(posts, Number(myId));
+        const myPosts = await getPostByUserId(posts, myId);
         return myPosts;
-    } else {
-        return;
     }
+    return;
 });
 
 export const selectOtherPost = createAsyncThunk(SELECT_OTHER_POST, async (payload, thunkApi) => {
@@ -54,67 +55,93 @@ export const selectOtherPost = createAsyncThunk(SELECT_OTHER_POST, async (payloa
     }
 });
 
+export const selectPostsByKey = createAsyncThunk(
+    SELECT_POST_BY_KEY, //
+    async ({ searchKey, userId }, thunkAPI) => {
+        const reg = new RegExp(searchKey, "g");
+        const { posts } = thunkAPI.getState().posts;
+        const myPosts = await getPostByKey(posts, reg, userId);
+        console.log(myPosts);
+        return myPosts;
+    }
+);
+
+export const insertPosts = createAsyncThunk(INSERT_POST, async (payload, thunkApi) => {
+    const { myId } = thunkApi.getState().users;
+    const { posts } = thunkApi.getState().posts;
+
+    const { content, img } = payload;
+    const post = { content, img, userId: Number(myId) };
+    const myPosts = await postPost(posts, post);
+    return myPosts;
+});
+
 export const deletePost = createAsyncThunk(DELETE_POST, async (payload, thunkApi) => {
-    console.log(thunkApi);
     const { posts } = thunkApi.getState().posts;
 
     return await deletePostById(posts, payload);
 });
-
-export const postSlice = createSlice({
-    name: "users",
+export const postsSlice = createSlice({
+    name: "posts",
     initialState,
-    reducer: {},
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(selectMyPost.pending, (state, { payload }) => {
-                const newPosts = { ...state.myPosts };
-                newPosts.loading = true;
-                return { ...state, myPosts: newPosts };
+                const newMyPosts = { ...state.myPosts };
+                newMyPosts.loading = true;
+                return { ...state, myPosts: newMyPosts };
             })
-            .addCase(selectMyPost.fullfilled, (state, { payload }) => {
-                const newPosts = { ...state.myPosts };
-                newPosts.loading = true;
+            .addCase(selectMyPost.fulfilled, (state, { payload }) => {
+                const newMyPosts = { ...state.myPosts };
+                newMyPosts.loading = false;
+                console.log("payload : " + payload);
+                console.log("state : " + state);
                 if (payload) {
-                    newPosts.posts = payload;
-                    return { ...state, myPosts: newPosts };
+                    newMyPosts.posts = payload;
+                    console.log("newMyPosts.loading : " + newMyPosts.posts);
+                    return { ...state, myPosts: newMyPosts };
                 } else {
-                    newPosts.posts = state.posts;
-                    return { ...state, newPosts };
+                    newMyPosts.message = "글이 없습니다.";
+                    return { ...state, myPosts: newMyPosts };
                 }
             })
             .addCase(selectMyPost.rejected, (state, { error }) => {
-                const newPosts = { ...state.myPosts };
-                newPosts.loading = true;
-                newPosts.message = error.message;
-                return { ...state, myPost: newPosts };
+                const newMyPosts = { ...state.myPosts };
+                newMyPosts.loading = false;
+                newMyPosts.message = error.message;
+                return { ...state, myPosts: newMyPosts };
             })
-            .addCase(selectOtherPost.pending, (state, { payload }) => {
+            .addCase(selectPostsByKey.pending, (state, { payload }) => {
                 const newOtherPosts = { ...state.otherPosts };
                 newOtherPosts.loading = true;
                 return { ...state, otherPosts: newOtherPosts };
             })
-            .addCase(selectOtherPost.fullfilled, (state, { payload }) => {
+            .addCase(selectPostsByKey.fulfilled, (state, { payload }) => {
                 const newOtherPosts = { ...state.otherPosts };
-                newOtherPosts.loading = true;
+                newOtherPosts.loading = false;
+
                 if (payload) {
                     newOtherPosts.posts = payload;
                     return { ...state, otherPosts: newOtherPosts };
                 } else {
-                    newOtherPosts.posts = state.posts;
-                    return { ...state, newOtherPosts };
+                    newOtherPosts.message = "글이 없습니다.";
+                    return { ...state, otherPosts: newOtherPosts };
                 }
             })
-            .addCase(selectOtherPost.rejected, (state, { error }) => {
+            .addCase(selectPostsByKey.rejected, (state, { error }) => {
                 const newOtherPosts = { ...state.otherPosts };
-                newOtherPosts.loading = true;
+                newOtherPosts.loading = false;
                 newOtherPosts.message = error.message;
                 return { ...state, otherPosts: newOtherPosts };
             })
-            .addCase(deletePost.fullfilled, (state, { payload }) => {
+            .addCase(deletePost.fulfilled, (state, { payload }) => {
+                return { ...state, posts: payload };
+            })
+            .addCase(insertPosts.fulfilled, (state, { payload }) => {
                 return { ...state, posts: payload };
             });
     },
 });
 
-export default postSlice.reducer;
+export default postsSlice.reducer;

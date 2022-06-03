@@ -1,44 +1,62 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import "./Posts.css";
-import { Modal, Button, Container } from "reactstrap";
-import { UserContext } from "../../store/UserContext";
+import { Modal, Button, Container, Spinner } from "reactstrap";
+import { useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { deletePost, selectMyPost, selectOtherPost } from "../../store/posts";
+import { selectUserById } from "../../store/users";
 
-const Posts = ({ posts, deletePost }) => {
+const Posts = ({ postState, posts }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [clickPost, setClickPost] = useState();
+    const [postUser, setPostUser] = useState();
+    const dispatch = useDispatch();
+    const location = useLocation();
+
     const openModal = (post) => {
-        setClickPost(post);
-        setIsOpen(true);
+        dispatch(selectUserById(post.userId))
+            .unwrap()
+            .then((result) => {
+                setPostUser(result);
+            })
+            .finally(() => {
+                setClickPost(post);
+                setIsOpen(true);
+            });
     };
     const closeModal = () => {
         setClickPost();
         setIsOpen(false);
     };
-    const onClickDelete = (postId) => {
-        deletePost(postId);
-        closeModal();
+    const onClickDelete = async (postId) => {
+        await dispatch(deletePost(postId));
+        await dispatch(location.pathname === "/profile" ? selectMyPost() : selectOtherPost());
+
+        setIsOpen(false);
     };
     return (
         <div className="Posts">
-            {posts?.map((post) => (
-                <div className="PostsImgBox" onClick={() => openModal(post)}>
-                    <img className="PostsImg" key={post.id} src={post.img} alt={post.content}></img>
-                </div>
-            ))}
-            {clickPost ? <PostDetail isOpen={isOpen} clickPost={clickPost} closeModal={closeModal} onClickDelete={onClickDelete}></PostDetail> : null}
+            {postState.loading ? (
+                <Spinner>Loading...</Spinner>
+            ) : (
+                posts?.map((post) => (
+                    <div className="PostsImgBox" onClick={() => openModal(post)}>
+                        <img className="PostsImg" key={post.id} src={post.img} alt={post.content}></img>
+                    </div>
+                ))
+            )}
+            {clickPost ? (
+                <PostDetail isOpen={isOpen} clickPost={clickPost} closeModal={closeModal} onClickDelete={onClickDelete} user={postUser}></PostDetail>
+            ) : null}
         </div>
     );
 };
 
 export default Posts;
 
-const PostDetail = ({ name, img, isOpen, clickPost, closeModal, onClickDelete }) => {
-    const { users } = useContext(UserContext);
-    const getUser = () => {
-        return users.find((user) => user.id === clickPost?.userId);
-    };
-    const user = getUser();
-    const myId = Number(localStorage.getItem("id"));
+const PostDetail = ({ isOpen, clickPost, closeModal, onClickDelete, user }) => {
+    const myId = Number(useSelector((state) => state.users.myId));
+
     return (
         <Modal isOpen={isOpen} fullscreen toggle={closeModal}>
             <div className="PostsModalHeader">

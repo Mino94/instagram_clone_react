@@ -7,13 +7,21 @@ export const getUserByUserId = async (users, userId) => {
     const findUserByUserId = await users.find((user) => user.id === userId);
     return findUserByUserId;
 };
+export const getUserByKey = async (users, key) => {
+    console.log("getuser start", users);
+    const findUserByUserId = await users.find((user) => key.test(user.name));
+    console.log("getuser end", findUserByUserId);
 
+    return findUserByUserId;
+};
 export const postUser = async (users, user) => {
     const newUser = { ...user, userId: user.id, id: users.length };
     return newUser;
 };
 
 export const loginApi = async (users, user) => {
+    console.log("user.id : " + user.id);
+    console.log("data.id : " + users[0].userId);
     const checkUser = await users.find((data) => data.userId === user.id && data.password === user.password);
     return { isLogin: checkUser ? true : false, user: checkUser };
 };

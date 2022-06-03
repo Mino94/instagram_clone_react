@@ -21,6 +21,7 @@ const BootstrapLogin = () => {
 
     const navigate = useNavigate();
     const onSubmitLogin = async (e) => {
+        console.log("login submit");
         e.preventDefault();
         const { isLogin } = await dispatch(login(user)).unwrap();
         if (isLogin) {

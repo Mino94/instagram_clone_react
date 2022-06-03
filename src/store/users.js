@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { Users } from "../components/data/User";
-import { checkId, getUserById, getUserByUserId, loginApi, logoutApi, postUser, putUser } from "./UserApi";
+import { checkId, getUserById, getUserByKey, getUserByUserId, loginApi, logoutApi, postUser, putUser } from "./UserApi";
 
 const initialState = {
     users: Users,
@@ -17,6 +17,7 @@ const SELECT_USER_BY_ID = "SELECT_USER_BY_ID";
 const SELECT_USER_BY_USERID = "SELECT_USER_BY_USERID";
 const LOGOUT = "LOGOUT";
 const UPDATE_USERS = "UPDATE_USERS";
+const SELECT_USER_BY_KEY = "SELECT_USER_BY_KEY";
 
 export const getCheckId = createAsyncThunk(CHECK_ID, async (userId, thunkAPI) => {
     const { users } = thunkAPI.getState().users;
@@ -38,6 +39,7 @@ export const loginCheck = createAsyncThunk(LOGIN_CHECK, async (payload, thunkAPI
 
 export const login = createAsyncThunk(LOGIN, async (user, thunkAPI) => {
     const { users } = thunkAPI.getState().users;
+    console.log("-----------" + user.id + " , " + users[0]?.userId);
     const isLogin = await loginApi(users, user);
     return isLogin;
 });
@@ -65,7 +67,15 @@ export const selectUserByUserId = createAsyncThunk(SELECT_USER_BY_USERID, async 
     const newUser = await getUserByUserId(users, userId);
     return newUser;
 });
+export const selectUserByKey = createAsyncThunk(SELECT_USER_BY_KEY, async (key, thunkAPI) => {
+    const { users } = thunkAPI.getState().users;
+    const reg = new RegExp(key, "g");
+    console.log("====");
 
+    const newUsers = await getUserByKey(users, reg);
+    console.log("newUsers.id", newUsers.id);
+    return newUsers.id;
+});
 export const updateUsers = createAsyncThunk(UPDATE_USERS, async (user, thunkAPI) => {
     const { myId, users } = thunkAPI.getState().users;
     const newUser = await putUser(users, user, myId);
